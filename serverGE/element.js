@@ -1,20 +1,19 @@
 
-export let db ={elements:null,ids:null}
+export let db = { elements: null, ids: null }
 
 
 
 export async function getElement(id) {
 
     const element = await db.elements?.find({ id: parseInt(id) }).sort({ "meta.created": -1 }).limit(1).toArray();
-    return element?element[0]:null
+    return element ? element[0] : null
 }
 
-export async function getSearch(jeu)
-{
-    let element = await db.elements.aggregate([ { "$sort": { "meta.created": 1 } }, { $group: { _id: "$id", "doc": { "$last": "$$ROOT" } } }]).toArray();
-    element = element.map((e) => {let r= e.doc.meta;r.id=e.doc?.id;r.name=e.doc.content?.name;return r})
-    element=element.filter((e)=>e.status!=="DELETED")
-    element=element.map(e=>{return {jeu:e.jeu,type:e.type,id:e.id,name:e.name}})
+export async function getSearch(jeu) {
+    let element = await db.elements.aggregate([{ "$sort": { "meta.created": 1 } }, { $group: { _id: "$id", "doc": { "$last": "$$ROOT" } } }]).toArray();
+    element = element.map((e) => { let r = e.doc.meta; r.id = e.doc?.id; r.name = e.doc.content?.name; return r })
+    element = element.filter((e) => e.status !== "DELETED")
+    element = element.map(e => { return { jeu: e.jeu, type: e.type, id: e.id, name: e.name } })
     return element
 }
 
@@ -22,7 +21,7 @@ export async function getSearch(jeu)
 export async function getListElement(jeu, type) {
     let element = await db.elements.aggregate([{ "$match": { "meta.type": { "$eq": type } } }, { "$sort": { "meta.created": 1 } }, { $group: { _id: "$id", "doc": { "$last": "$$ROOT" } } }]).toArray();
     element = element.map(e => e.doc)
-    element=element.filter(e=>e.meta.status!=="DELETED")
+    element = element.filter(e => e.meta.status !== "DELETED")
     return element
 }
 
@@ -45,7 +44,7 @@ function purgeLien(content) {
 export async function buildElement(content, jeu, type, id, u, status) {
     let nid
     if (id === 0)
-        nid = await nextId( "element")
+        nid = await nextId("element")
     else
         nid = id
 
@@ -57,7 +56,7 @@ export async function buildElement(content, jeu, type, id, u, status) {
     data.meta.jeu = jeu
     data.meta.type = type
     data.meta.created = Date.now()
-    data.meta.status=status
+    data.meta.status = status
 
     return data
 }
@@ -70,16 +69,40 @@ export async function save(data) {
 }
 
 
- async function nextId(id)
-{
-    const val = await db.ids?.findOne({ 'id' : id }) 
-    if (!val)
-    {
-        await db.ids?.insertOne({'id':id,'val':1});
+async function nextId(id) {
+    const val = await db.ids?.findOne({ 'id': id })
+    if (!val) {
+        await db.ids?.insertOne({ 'id': id, 'val': 1 });
         return 1
     }
-    else{
-        await db.ids?.updateOne({ 'id' : id}, {'$inc' : { 'val' : 1 } })
-        return val.val+1
+    else {
+        await db.ids?.updateOne({ 'id': id }, { '$inc': { 'val': 1 } })
+        return val.val + 1
     }
+}
+
+export async function getStat(jeu) {
+    const result = await db.elements.aggregate([
+        {
+            $match: {
+                "meta.jeu": jeu
+            }
+        },
+        {
+            $group: {
+                _id: "$meta.type",
+                ids: { $addToSet: "$id" }
+            }
+        },
+        {
+            $project: {
+                count: { $size: "$ids" }
+            }
+        }
+    ]).toArray();
+
+    const output = Object.fromEntries(
+        result.map(({ _id, count }) => [_id, count])
+    )
+    return output
 }

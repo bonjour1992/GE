@@ -1,7 +1,7 @@
 import express from 'express'
 import * as element from "./element.js"
 import * as remp from "./remp.js"
-
+import { getImage } from './image.js';
 
 
 import { DB, DBInit } from './db.js';
@@ -30,44 +30,59 @@ app.use(cors());
 app.use('/public', express.static('public'))
 app.use(express.json())
 
+
+// get  last version of element ID 
 app.get('/element/:id', async (req, res) => {
   let carte = await element.getElement(req.params.id)
   if (carte) res.json(carte)
   else res.status(404).json(null)
 })
-
+// update element ID
 app.post('/element/:id', async (req, res) => {
   let data = await req.body;
   element.save(await element.buildElement(data.content, data.meta.jeu, data.meta.type, parseInt(req.params.id), 0, "UPDATED"))
   res.json({ message: "Element updated with id:" + req.params.id, id: req.params.id, action: "UPDATE" });
 })
 
-app.delete('/element/:id', (req, res) => {
-
-  res.send('Hello World')
-})
-
+//TODO: create new element return ID
 app.post('/element/new', (req, res) => {
 
   res.send('Hello World')
 })
 
 
+// get search hearder for all element
+app.get('/element/search/:jeu', async (req, res) => {
+  res.json(await element.getSearch(req.params.jeu))
+})
+
+//TODO:delete element ID
+app.delete('/element/:id', (req, res) => {
+
+  res.send('Hello World')
+})
+
+// get nombre d'element par TYPE
+app.get('/element/:jeu/stat', async (req, res) => {
+  res.json(await element.getStat(req.params.jeu))
+})
+
+// get all element TYPE
+app.get('/element/:jeu/:type', async (req, res) => {
+  res.json(await element.getListElement(req.params.jeu, req.params.type))
+})
+
+
+
+//get all remplacement
 app.get('/remp/:jeu', async (req, res) => {
 
   res.json(await remp.getAll(req.params.jeu))
 
 })
 
-app.get('/element/search/:jeu', async (req, res) => {
-  res.json(await element.getSearch(req.params.jeu))
-})
 
-app.get('/element/:jeu/:type', async (req, res) => {
-  res.json(await element.getListElement(req.params.jeu, req.params.type))
-})
-
-
+//update table of element
 app.post('/remp/update/:jeu', async (req, res) => {
   let data = await req.body;
   await remp.update(data, req.params.jeu)
@@ -75,6 +90,11 @@ app.post('/remp/update/:jeu', async (req, res) => {
 
 })
 
+// get all available image
+app.get('/image',async(req,res)=>{
+  let imgs= await getImage()
+  res.json(imgs)
+})
 
 
 app.listen(process.env.PORT, () => {

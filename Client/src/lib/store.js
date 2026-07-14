@@ -5,11 +5,23 @@ import { getElement, getRemp, getSearch, getList } from "./fetch.js";
 
 export const useRemp = create((set) => ({
   remp: [],
-  setRemp: (r) => set({ remp: r })
+  setRemp: (r, jeu) => set({ remp: r, loaded: jeu }),
+  loaded: false,
 }))
 
+export const useSearch = create((set) => ({
+  search: [],
+  setSearch: (r, jeu) => set({ search: r, loaded: jeu }),
+  loaded: false,
+}))
 
+export function getFromSearch(search,id, def = "not found") {
+  let res = search.filter(e => e.id === id)
+  return res.length ? res[0] : def
+}
 
-export let search
-search = search || await getSearch("ti5")
-
+export function getFromType(search,type) {
+  let res = search.filter(e => type.indexOf(e.type) !== -1)
+  res.sort((a, b) => a.name > b.name ? a.name === b.name ? 0 : 1 : -1)
+  return res
+}

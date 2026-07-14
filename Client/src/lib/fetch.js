@@ -34,8 +34,21 @@ export async function getRemp(jeu)
 
 }
 
+export async function getStat(jeu)
+{
+        return await fetchAPI("element/" + jeu+"/stat", 'GET')
+
+}
+
 export async function getSearch(jeu)
 {
         return await fetchAPI("element/search/" + jeu, 'GET')
 
 }
+
+export async function getImage()
+{
+    return await fetchAPI("image",'GET')
+}
+
+export const pub= "http://localhost:3000/public"

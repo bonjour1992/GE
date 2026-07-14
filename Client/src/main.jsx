@@ -2,15 +2,15 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
-import HeaderBar from "./Component/HeaderBar";
-import Home from "./Component/Home";
-import JeuBar from "./Component/JeuBar";
-import Remp from "./Component/Remp";
-import JeuHome from "./Component/JeuHome";
-import Liste from "./Component/Liste";
-import Affichage from "./Component/Affichage";
-import { getElement, getRemp, getSearch, getList } from "./lib/fetch.js";
-import Edit from "./Component/Edit";
+import HeaderBar from "./Page/HeaderBar";
+import Home from "./Page/Home";
+import JeuBar from "./Page/JeuBar";
+import Remp from "./Page/Remp";
+import JeuHome from "./Page/JeuHome";
+import Liste from "./Page/Liste";
+import Affichage from "./Page/Affichage";
+import  * as fAPI from "./lib/fetch.js";
+import Edit from "./Page/Edit";
 
 
 
@@ -28,28 +28,31 @@ const router = createBrowserRouter([
       {
         path: ":jeu/", Component: JeuBar, children: [
           {
-            index: true, Component: JeuHome
+            index: true, Component: JeuHome,
+            loader:async ({params})=>{
+              return await fAPI.getStat(params.jeu)
+            }
           },
           { path: "remp", Component: Remp },
           {
             path: ":elem",
             Component: Liste,
             loader: async ({ params }) => {
-              return { element: await getList(params.jeu, params.elem) }
+              return { element: await fAPI.getList(params.jeu, params.elem) }
             }
           },
           {
             path: ":elem/:id",
             Component: Affichage,
             loader: async ({ params }) => {
-              return { element: await getElement(params.id) }
+              return { element: await fAPI.getElement(params.id) }
             }
           },
           {
             path: ":elem/:id/edit",
             Component: Edit,
             loader: async ({ params }) => {
-              return { element: await getElement(params.id) }
+              return { element: await fAPI.getElement(params.id) }
             }
           }]
       }]
