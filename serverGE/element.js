@@ -22,6 +22,7 @@ export async function getListElement(jeu, type) {
     let element = await db.elements.aggregate([{ "$match": { "meta.type": { "$eq": type } } }, { "$sort": { "meta.created": 1 } }, { $group: { _id: "$id", "doc": { "$last": "$$ROOT" } } }]).toArray();
     element = element.map(e => e.doc)
     element = element.filter(e => e.meta.status !== "DELETED")
+    element=element.sort((a,b)=>a.content.name.localeCompare(b.content.name))
     return element
 }
 

@@ -1,6 +1,7 @@
 export class ElementContent {
   name= ""
   explication=""
+  Lien=[]
 }
 
 export class Link {

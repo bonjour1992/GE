@@ -5,12 +5,13 @@ import { TagInput } from "../../Input/TagInput"
 import { TextInput } from "../../Input/TextInput"
 import { NumberInput } from "../../Input/NumberInput"
 import { EditorInput } from "../../Input/EditorInput"
-import { techType } from "./ti5"
+import { fullBorder, techType,bottomBorder } from "./ti5"
 import { Text, Explication } from "../../Component/Text"
 import ReactDOMServer from "react-dom/server"
 import { MiniPa, SmallPa } from "../../Component/Size"
 import { borderColor } from "./ti5"
 import { backgroundColor } from "./ti5"
+import FormBase from "../../Input/FormBase"
 
 //TODO: gestion image  
 const shipClasse = {
@@ -59,52 +60,59 @@ class Ship extends ElementContent {
     capacite
     PV = 1
     mot_cle = []
-    techType = "spa";
-    tier = 1;
 }
 
 
 
-//TODO: prerequis tech
+
 //TODO: affichage ***
 function Display({ content, explication, style }) {
 
-    let ajout = []
 
 
 
-    return content !== undefined ? (
-        <>
-            <div
-                style={{
-                    ...MiniPa,
-                    ...style,
-                    borderWidth: 4,
-                    ...borderColor,
-                    borderStyle: "solid",
-                    borderRadius: 16,
-                   ...backgroundColor,
-                    position: "relative",
-                    color: "#FFFFCC"
 
-                }}>
-                <Text style={{ borderBottomWidth: 4, paddingLeft: 4, fontSize: 15, fontWeight: "bold", borderBottomStyle: "solid", ...borderColor }}
-                    text={content.name} />
-                <Text style={{ fontSize: 10, paddingLeft: 2, width: "100%", borderBottomWidth: 2, borderBottomStyle: "solid", ...borderColor }}
-                    text={content.mot_cle.reduce((res, e, k, { length }) => {
-                        return res + ReactDOMServer.renderToStaticMarkup(<span key={e} >{tag[e] + (k === length - 1 ? "" : ", ")}</span>)
-                    }, "")} />
-                <Text style={{ fontSize: 9, paddingLeft: 2, lineHeight: 1.2 }} text={content.habilite} rule={ajout} />
-                <Stat data={[content.cout, content.move, content.combat, content.capacite, content.PV]}
-                    label={["Cout", "Mouvement", "Attaque", "Capacité", "Résistance"]}
-                    mult={[content.prod, null, content.combat_touche]}
-                />
+    return (
 
-            </div>
-            <Explication explication={content.explication} afficher={explication} ajout={ajout} />
-        </>
+        <div
+            style={{
+                ...MiniPa,
+                ...style,
+                ...borderColor,
+                ...fullBorder,
+                ...backgroundColor,
+                position: "relative",
+                color: "#FFFFCC"
 
-    ) : (<></>)
+            }}>
+            <Text style={{
+                paddingLeft: 4,
+                fontSize: 15,
+                fontWeight: "bold",
+                ...bottomBorder(4),
+                ...borderColor
+            }}
+                text={content.name} />
+            <Text style={{
+                fontSize: 10,
+                paddingLeft: 2,
+                width: "100%",
+                ...bottomBorder(2),
+                ...borderColor
+            }}
+                text={content.mot_cle.reduce((res, e, k, { length }) => {
+                    return res + ReactDOMServer.renderToStaticMarkup(<span key={e} >{tag[e] + (k === length - 1 ? "" : ", ")}</span>)
+                }, "")} />
+            <Text style={{ fontSize: 9, paddingLeft: 2, lineHeight: 1.2 }} text={content.habilite} rule={explication} />
+            <Stat data={[content.cout, content.move, content.combat, content.capacite, content.PV]}
+                label={["Cout", "Mouvement", "Attaque", "Capacité", "Résistance"]}
+                mult={[content.prod, null, content.combat_touche]}
+            />
+
+        </div>
+
+
+    )
 }
 
 function Stat({ data, label, mult }) {
@@ -147,31 +155,26 @@ function Stat({ data, label, mult }) {
     </div>)
 }
 
-function Form({ content, onChange, onSubmit, id, style }) {
+function Form({ content, onChange, onSubmit, style }) {
     return (
-        <div style={style}>
 
-                <TextInput onChange={onChange} name="name" value={content} />
-                <EnumInput onChange={onChange} name="type" value={content} enumClass={shipClasse} />
-                <EnumInput onChange={onChange} name="techType" value={content} enumClass={techType} label="Prérequis" />
-                <NumberInput onChange={onChange} name="tier" value={content} min={1} max={5} />
-                <br />
-                <TagInput onChange={onChange} name="mot_cle" value={content} tagClass={tag} />
-                <br />
-                <EditorInput onChange={onChange} label="Habilité" name="habilite" value={content} />
-                <br />
-                <NumberInput onChange={onChange} name="cout" value={content} min={0} max={99} label="Cout" />
-                <NumberInput onChange={onChange} name="prod" value={content} min={1} max={9} label="Production" />
-                <NumberInput onChange={onChange} name="move" value={content} min={0} max={9} label="Mouvement" />
-                <NumberInput onChange={onChange} name="combat" value={content} min={0} max={9} label="Combat" />
-                <NumberInput onChange={onChange} name="combat_touche" value={content} min={1} max={9} label="touche" />
-                <NumberInput onChange={onChange} name="capacite" value={content} min={0} max={99} label="Capacité" />
-                <NumberInput onChange={onChange} name="PV" value={content} min={0} max={9} label="Résistance" />
-                <br />
-                <EditorInput onChange={onChange} label="Explications" name="explication" value={content} />
-                <br />
-                <button onClick={onSubmit}>Submit</button>
-        </div>
+        <FormBase content={content} onChange={onChange} onSubmit={onSubmit} style={style}>
+            <EnumInput onChange={onChange} name="type" value={content} enumClass={shipClasse} />
+            <br />
+            <TagInput onChange={onChange} name="mot_cle" value={content} tagClass={tag} />
+            <br />
+            <EditorInput onChange={onChange} label="Habilité" name="habilite" value={content} />
+            <br />
+            <NumberInput onChange={onChange} name="cout" value={content} min={0} max={99} label="Cout" />
+            <NumberInput onChange={onChange} name="prod" value={content} min={1} max={9} label="Production" />
+            <NumberInput onChange={onChange} name="move" value={content} min={0} max={9} label="Mouvement" />
+            <NumberInput onChange={onChange} name="combat" value={content} min={0} max={9} label="Combat" />
+            <NumberInput onChange={onChange} name="combat_touche" value={content} min={1} max={9} label="touche" />
+            <NumberInput onChange={onChange} name="capacite" value={content} min={0} max={99} label="Capacité" />
+            <NumberInput onChange={onChange} name="PV" value={content} min={0} max={9} label="Résistance" />
+
+        </FormBase>
+
 
     )
 }

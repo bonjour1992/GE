@@ -31,12 +31,22 @@ app.use('/public', express.static('public'))
 app.use(express.json())
 
 
+//create new element return ID
+app.post('/element/new', async (req, res) => {
+  let data = await req.body;
+  element.save(await element.buildElement(data.content, data.meta.jeu, data.meta.type, undefined, 0, "CREATED"))
+  res.json({ message: "Element created with id:" + req.params.id, id: req.params.id, action: "CREATE" });
+
+})
+
 // get  last version of element ID 
 app.get('/element/:id', async (req, res) => {
   let carte = await element.getElement(req.params.id)
   if (carte) res.json(carte)
   else res.status(404).json(null)
 })
+
+
 // update element ID
 app.post('/element/:id', async (req, res) => {
   let data = await req.body;
@@ -44,11 +54,7 @@ app.post('/element/:id', async (req, res) => {
   res.json({ message: "Element updated with id:" + req.params.id, id: req.params.id, action: "UPDATE" });
 })
 
-//TODO: create new element return ID
-app.post('/element/new', (req, res) => {
 
-  res.send('Hello World')
-})
 
 
 // get search hearder for all element

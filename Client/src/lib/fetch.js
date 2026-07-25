@@ -23,6 +23,11 @@ export async function updateElement( id, content) {
     return await fetchAPI("element/" + id, 'POST', content)
 }
 
+export async function createElement(  content) {
+    return await fetchAPI("element/new" , 'POST', content)
+}
+
+
 export async function updateRemp( jeu, content) {
     return await fetchAPI("remp/update/" + jeu, 'POST', content)
 }
